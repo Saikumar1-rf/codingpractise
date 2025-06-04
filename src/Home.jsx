@@ -1,53 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import Popup from "./Popup";
 
- const Home = () => {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    gender: "",
-  });
-
-  const [isDisabled, setIsDisabled] = useState(true);
-  const [open, setOpen] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    setDetails((prev)=>({
-      ...prev,
-      [name]:value,
-    }))
-  };
-
-  const handleEditClick = () => {
-    setIsDisabled(false);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form Data Submitted:", formData);
-    setIsDisabled(true);
-  };
-
-  const handleClick = () => {
-    setOpen(true);
-  };
-
-  const handleSave=(e)=>{
-    e.preventDefault();
-    console.log("submitted data",details);
-  }
-
-  const [details,setDetails]=useState({
-    joiningdate:"",
-    name:"",
-    exitdate:"",
-  });
-
+const Home = ({
+  handleSave,
+  handleClick,
+  handleSubmit,
+  handleEditClick,
+  handleChange,
+  data={},
+  open,
+  setOpen,
+  isDisabled,
+  formData={}
+}) => {
   return (
     <>
       <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -149,67 +114,66 @@ import Popup from "./Popup";
 
       <div className="p-4">
         <form onSubmit={handleSave}>
-<div className="bg-white p-4 rounded-xl shadow-md flex flex-wrap gap-4 items-end">
-          <div className="flex flex-col">
-            <label
-              htmlFor="joiningDate"
-              className="mb-1 font-medium text-gray-700"
-            >
-              Joining Date
-            </label>
-            <input
-              id="joiningDate"
-              type="date"
-              name="joiningdate"
-              value={details.joiningdate}
-              onClick={handleChange}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          <div className="bg-white p-4 rounded-xl shadow-md flex flex-wrap gap-4 items-end">
+            <div className="flex flex-col">
+              <label
+                htmlFor="joiningDate"
+                className="mb-1 font-medium text-gray-700"
+              >
+                Joining Date
+              </label>
+              <input
+                id="joiningDate"
+                type="date"
+                name="joiningdate"
+                value={data.joiningdate}
+                onChange={handleChange}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
-          <div className="flex flex-col">
-            <label htmlFor="name" className="mb-1 font-medium text-gray-700">
-              Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              name="name"
-              value={details.name}
-              placeholder="Enter name"
-              onClick={handleChange}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+            <div className="flex flex-col">
+              <label htmlFor="name" className="mb-1 font-medium text-gray-700">
+                Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                name="name"
+                value={data.name}
+                placeholder="Enter name"
+                onChange={handleChange}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
-          <div className="flex flex-col">
-            <label
-              htmlFor="exitDate"
-              className="mb-1 font-medium text-gray-700"
-            >
-              Date of Exit
-            </label>
-            <input
-              id="exitDate"
-              type="date"
-              value={details.exitdate}
-              name="dateofexit"
-              onClick={handleChange}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="exitDate"
+                className="mb-1 font-medium text-gray-700"
+              >
+                Date of Exit
+              </label>
+              <input
+                id="exitDate"
+                type="date"
+                value={data.exitdate}
+                name="exitdate"
+                onChange={handleChange}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
-          <div>
-            <button
-            type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-            >
-              BIG BUCKET
-            </button>
+            <div>
+              <button
+                type="submit"
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+              >
+                BIG BUCKET
+              </button>
+            </div>
           </div>
-        </div>
         </form>
-        
       </div>
 
       {open && <Popup onClose={() => setOpen(false)} />}
