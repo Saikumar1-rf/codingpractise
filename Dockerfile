@@ -90,10 +90,28 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Step 2: Serve with NGINX
-FROM nginx:alpine
+# Step 2: Use Alpine + Install NGINX + Apache2
+FROM alpine:latest
+
+# Install required packages
+RUN apk update && \
+    apk add nginx apache2 apache2-utils && \
+    rm -rf /var/cache/apk/*
+
+# Remove default NGINX config and use custom
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d
+
+# Copy React build to NGINX's web directory
 COPY --from=builder /app/dist /usr/share/nginx/html
-EXPOSE 80
+
+# Create folders Apache2 expects
+RUN mkdir -p /run/apache2 && \
+    echo "It works with Apache2 too!" > /var/www/localhost/htdocs/index.html
+
+# Expose the ports for both NGINX and Apache (optional)
+EXPOSE 80   
+EXPOSE 8080 
+
+# Start only NGINX (you can change this if you want to run apache2 instead)
 CMD ["nginx", "-g", "daemon off;"]
