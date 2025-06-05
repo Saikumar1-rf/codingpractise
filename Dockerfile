@@ -82,36 +82,21 @@
 # CMD ["nginx", "-g", "daemon off;"]
 
 
-# Step 1: Build the React app
-FROM node:18 AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
+FROM ubuntu:20.04
 
-# Step 2: Use Alpine + Install NGINX + Apache2
-FROM alpine:latest
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install required packages
-RUN apk update && \
-    apk add nginx apache2 apache2-utils && \
-    rm -rf /var/cache/apk/*
+# Install Apache2, NGINX, Jenkins prerequisites
+RUN apt-get update && \
+    apt-get install -y apache2 nginx openjdk-11-jdk curl gnupg && \
+    curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | apt-key add - && \
+    echo "deb https://pkg.jenkins.io/debian-stable binary/" > /etc/apt/sources.list.d/jenkins.list && \
+    apt-get update && apt-get install -y jenkins && \
+    apt-get clean
 
-# Remove default NGINX config and use custom
-RUN rm /etc/nginx/conf.d/default.conf
-COPY nginx.conf /etc/nginx/conf.d
+# Install supervisord to run multiple services
+RUN apt-get install -y supervisor
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Copy React build to NGINX's web directory
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Create folders Apache2 expects
-RUN mkdir -p /run/apache2 && \
-    echo "It works with Apache2 too!" > /var/www/localhost/htdocs/index.html
-
-# Expose the ports for both NGINX and Apache (optional)
-EXPOSE 80   
-EXPOSE 8080 
-
-# Start only NGINX (you can change this if you want to run apache2 instead)
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 80 8080 50000
+CMD ["/usr/bin/supervisord"]
