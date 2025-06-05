@@ -86,17 +86,30 @@ FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install Apache2, NGINX, Jenkins prerequisites
-RUN apt-get update && \
-    apt-get install -y apache2 nginx openjdk-11-jdk curl gnupg && \
-    curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | apt-key add - && \
-    echo "deb https://pkg.jenkins.io/debian-stable binary/" > /etc/apt/sources.list.d/jenkins.list && \
-    apt-get update && apt-get install -y jenkins && \
-    apt-get clean
+# Update and install all required software
+RUN apt-get update && apt-get install -y \
+    apache2 \
+    nginx \
+    openjdk-11-jdk \
+    curl \
+    gnupg \
+    supervisor
 
-# Install supervisord to run multiple services
-RUN apt-get install -y supervisor
+# Install Jenkins
+RUN curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | apt-key add - && \
+    echo "deb https://pkg.jenkins.io/debian-stable binary/" > /etc/apt/sources.list.d/jenkins.list && \
+    apt-get update && apt-get install -y jenkins
+
+# Remove default NGINX site and replace with your own if needed
+RUN rm /etc/nginx/sites-enabled/default
+
+# Copy your supervisord config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-EXPOSE 80 8080 50000
+# Expose necessary ports
+EXPOSE 80     
+EXPOSE 8080   
+EXPOSE 50000  
+
+# Start Supervisor to run all services
 CMD ["/usr/bin/supervisord"]
